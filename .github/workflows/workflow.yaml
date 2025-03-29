@@ -145,57 +145,10 @@ jobs:
                       output/${{ needs.refs.outputs.version }}/${{ matrix.platform }}_${{ needs.refs.outputs.version }}_OTA.bin.xz.ota
                   if-no-files-found: warn
 
-    build_idf:
-        name: Build IDF
-        needs: refs
-        runs-on: ubuntu-20.04
-        strategy:
-            fail-fast: false
-            matrix:
-                platform: []
-        steps:
-            - name: Source checkout
-              uses: actions/checkout@v4
-            - name: SDK checkout
-              uses: actions/checkout@v4
-              with:
-                  repository: espressif/esp-idf
-                  path: sdk/esp-idf
-                  ref: v5.3.2
-                  submodules: recursive
-            - uses: actions/setup-python@v5
-              with:
-                  python-version: "3.8"
-                  architecture: "x64"
-            - name: Install dependencies
-              run: |
-                  sudo apt-get update
-                  sudo apt-get -y install make cmake python3-venv
-                  pip3 install pycryptodomex
-                  pip3 install configobj
-                  pip3 install toml
-                  pip3 install fdt
-            - name: Run make
-              run: |
-                  cd sdk/esp-idf
-                  ./install.sh > /dev/null
-                  . ./export.sh
-                  . ./add_path.sh
-                  cd ../..
-                  make APP_VERSION=${{ needs.refs.outputs.version }} APP_NAME=${{ matrix.platform }} ${{ matrix.platform }}
-            - name: Save build assets
-              uses: actions/upload-artifact@v4
-              with:
-                  name: ${{ env.APP_NAME }}_${{ needs.refs.outputs.version }}_${{ matrix.platform }}
-                  path: |
-                      output/${{ needs.refs.outputs.version }}/${{ matrix.platform }}_${{ needs.refs.outputs.version }}.img
-                      output/${{ needs.refs.outputs.version }}/${{ matrix.platform }}_${{ needs.refs.outputs.version }}.factory.bin
-                  if-no-files-found: warn
-
     merge:
         name: Merge Artifacts
         runs-on: ubuntu-20.04
-        needs: [refs, build, build2, build_idf]
+        needs: [refs, build, build2]
         #if: always() && needs.refs.outputs.new_release == 'true' && (github.ref == 'refs/heads/main' || github.ref_name == 'alpha')
         steps:
             - name: Merge Artifacts
