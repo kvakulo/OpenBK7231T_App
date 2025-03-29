@@ -103,7 +103,7 @@
 #define ENABLE_DRIVER_DHT		1
 // parse things like $CH1 or $hour etc
 #define ENABLE_EXPAND_CONSTANT	1
-#define ENABLE_TASMOTA_JSON		1
+#define ENABLE_TASMOTA_JSON		0
 #define ENABLE_DRIVER_DDP		1
 #define ENABLE_DRIVER_SSDP		1
 #define ENABLE_DRIVER_CHT83XX 1
