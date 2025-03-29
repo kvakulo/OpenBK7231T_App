@@ -65,10 +65,12 @@ void MQTT_Dedup_Tick() {
 	//	return;
 	///}
 	for(i = 0; i < DEDUP_MAX; i++) {
+		ADDLOG_DEBUG(LOG_FEATURE_MQTT, "deduper %i", i);
 		if(mqtt_dedups[i]) {
 			mqtt_dedups[i]->timeSinceLastSend++;
 #if DEDUPER_ENABLE_DELAY_SEND_OF_FAST_CHANGING_VALUES
 			if(mqtt_dedups[i]->timeSinceLastSend > MIN_INTERVAL_BETWEEN_SENDS && mqtt_dedups[i]->bValueDirty) {
+				ADDLOG_DEBUG(LOG_FEATURE_MQTT, "deduper publish %i", i);
 				// Some values of this publish were not published, because we had too many publish requests in one second or so.
 				// Now the cooldown has passed, so we can send the LATEST, most up-to-date value of this publish.
 				MQTT_PublishMain_StringString(mqtt_dedups[i]->name,mqtt_dedups[i]->value,mqtt_dedups[i]->flags);
@@ -79,10 +81,10 @@ void MQTT_Dedup_Tick() {
 		}
 	}
 //	DD_Mutex_Free();
-	if (CFG_HasLoggerFlag(LOGGER_FLAG_MQTT_DEDUPER)) {
+//	if (CFG_HasLoggerFlag(LOGGER_FLAG_MQTT_DEDUPER)) {
 		ADDLOG_DEBUG(LOG_FEATURE_MQTT, "MQTT deduper sent %i, culled duplicates %i, culled too fast %i",
 			stat_deduper_send, stat_deduper_culled_duplicates, stat_deduper_culled_tooFast);
-	}
+	//}
 
 }
 OBK_Publish_Result MQTT_PublishMain_StringInt_DeDuped(int slotCode, int expireTime, const char* sChannel, int val, int flags) {
