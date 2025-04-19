@@ -614,12 +614,12 @@ int channelSet(obk_mqtt_request_t* request) {
 		return 0;
 	}
 
-	addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "channelSet part topic %s", p);
+	//addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "channelSet part topic %s", p);
 
 	// atoi won't parse any non-decimal chars, so it should skip over the rest of the topic.
 	channel = atoi(p);
 
-	addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "channelSet channel %i", channel);
+	//addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "channelSet channel %i", channel);
 
 	// if channel out of range, stop here.
 	if ((channel < 0) || (channel > CHANNEL_MAX)) {
@@ -713,14 +713,12 @@ int mqtt_printf255(obk_mqtt_publishReplyPrinter_t* request, const char* fmt, ...
 }
 #if ENABLE_TASMOTA_JSON
 void MQTT_ProcessCommandReplyJSON(const char *cmd, const char *args, int flags) {
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "tas command reply");
 	obk_mqtt_publishReplyPrinter_t replyBuilder;
 	memset(&replyBuilder, 0, sizeof(obk_mqtt_publishReplyPrinter_t));
 	JSON_ProcessCommandReply(cmd, args, &replyBuilder, (jsonCb_t)mqtt_printf255, flags);
 	if (replyBuilder.allocated != 0) {
 		free(replyBuilder.allocated);
 	}
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "ras command reply done");
 }
 #endif
 int tasCmnd(obk_mqtt_request_t* request) {
@@ -745,9 +743,7 @@ int tasCmnd(obk_mqtt_request_t* request) {
 	// I think that our function get_received always ensured that
 	// there is a NULL terminating character after payload of MQTT
 	// So we can feed it directly as command
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "received tas cmnd");
 	CMD_ExecuteCommandArgs(p, args, COMMAND_FLAG_SOURCE_MQTT);
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "executed tas cmnd");
 #if ENABLE_TASMOTA_JSON
 	MQTT_ProcessCommandReplyJSON(p, args, COMMAND_FLAG_SOURCE_MQTT);
 #endif
