@@ -32,7 +32,7 @@ void HAL_Delay_us(int delay)
 
 void HAL_Configure_WDT()
 {
-	bl_wdt_init(3000);
+	bl_wdt_init(4000);
 }
 
 void HAL_Run_WDT()

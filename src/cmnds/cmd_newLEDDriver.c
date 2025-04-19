@@ -1361,28 +1361,32 @@ commandResult_t LED_SetBaseColor(const void *context, const char *cmd, const cha
 				led_baseColors[1] = g;
 				led_baseColors[2] = b;
 			} else {
-				while (*c && g_numBaseColors < 5){
-					char tmp[3];
-					int r;
-					tmp[0] = *(c++);
-					if (!*c)
-						break;
-					tmp[1] = *(c++);
-					tmp[2] = '\0';
-					r = sscanf(tmp, "%x", &val);
-					if (!r) {
-						ADDLOG_ERROR(LOG_FEATURE_CMD, "BASECOLOR no sscanf hex result from %s", tmp);
-						break;
-					}
+while (*c && g_numBaseColors < 5) {
+    if (!*(c + 1))
+        break;
 
+    char h1 = *(c++);
+    char h2 = *(c++);
+    int val = 0;
 
-					//ADDLOG_DEBUG(LOG_FEATURE_CMD, "BASECOLOR found chan %d -> val255 %d (from %s)", g_numBaseColors, val, tmp);
+    // Convert hex characters manually (faster than sscanf)
+    for (int i = 0; i < 2; i++) {
+        char ch = (i == 0) ? h1 : h2;
+        val <<= 4;
+        if (ch >= '0' && ch <= '9')
+            val |= ch - '0';
+        else if (ch >= 'A' && ch <= 'F')
+            val |= ch - 'A' + 10;
+        else if (ch >= 'a' && ch <= 'f')
+            val |= ch - 'a' + 10;
+        else {
+            ADDLOG_ERROR(LOG_FEATURE_CMD, "BASECOLOR invalid hex character: %c", ch);
+            break;
+        }
+    }
 
-					led_baseColors[g_numBaseColors] = val;
-				//	baseColorChannels[g_numBaseColors] = channel;
-					g_numBaseColors++;
-
-				}
+    led_baseColors[g_numBaseColors++] = val;
+}
 				// keep hsv in sync
 			}
 
