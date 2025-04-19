@@ -94,8 +94,6 @@ OBK_Publish_Result MQTT_PublishMain_StringString_DeDuped(int slotCode, int expir
 	mqtt_dedup_slot_t *slot;
 	OBK_Publish_Result res;
 
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup start");
-
 	// for simulator, we don't currently need dups removal
 #ifdef WINDOWS
 	return MQTT_PublishMain_StringString(sChannel, valueStr, flags);
@@ -103,11 +101,9 @@ OBK_Publish_Result MQTT_PublishMain_StringString_DeDuped(int slotCode, int expir
 
 	// alloc only when it's required
 	if(mqtt_dedups[slotCode] == 0) {
-		ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup slot alloc");
 		mqtt_dedups[slotCode] = malloc(sizeof(mqtt_dedup_slot_t));
 		// just in case malloc fails..
 		if (mqtt_dedups[slotCode] == 0) {
-			ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup slot alloc failed");
 			 return MQTT_PublishMain_StringString(sChannel, valueStr, flags);
 		}
 		memset(mqtt_dedups[slotCode],0,sizeof(mqtt_dedup_slot_t));
@@ -118,7 +114,6 @@ OBK_Publish_Result MQTT_PublishMain_StringString_DeDuped(int slotCode, int expir
 
 	// is value the same?
 	if(!strcmp(slot->value,valueStr)) {
-		ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup slot same value");
 		// has minimal time to republish passed?
 		if(expireTime > slot->timeSinceLastSend) {
 			stat_deduper_culled_duplicates++;
@@ -130,7 +125,6 @@ OBK_Publish_Result MQTT_PublishMain_StringString_DeDuped(int slotCode, int expir
 	// 'slot->timeSinceLastSend' is increased ONCE per second
 	// So we check if it was just sent this second or previous second
 	if(MIN_INTERVAL_BETWEEN_SENDS >= slot->timeSinceLastSend) {
-		ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup delay");
 		// It was sent in last second, don't resend just again
 
 		// Just save values for later
@@ -146,16 +140,13 @@ OBK_Publish_Result MQTT_PublishMain_StringString_DeDuped(int slotCode, int expir
 	}
 #endif
 	// send futher
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup publish");
 	res = MQTT_PublishMain_StringString(sChannel,valueStr,flags);
-	ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup after start");
 	if(res == OBK_PUBLISH_OK) {
 		slot->bValueDirty = false;
 		// mark as sent
 		slot->timeSinceLastSend = 0;
 		// save previous value
 		strcpy_safe(slot->value,valueStr, DEDUPER_MAX_STRING_LEN);
-		ADDLOG_DEBUG(LOG_FEATURE_MQTT, "dedup value saved");
 	}
 	stat_deduper_send++;
 	return res;
