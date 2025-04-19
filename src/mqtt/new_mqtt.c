@@ -1036,7 +1036,6 @@ int MQTT_process_received(){
 // called from tcp_thread context
 static void mqtt_incoming_publish_cb(void* arg, const char* topic, u32_t tot_len)
 {
-	addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "mqtt_incoming_publish_cb");
 	//const char *p;
 	int i;
 	// unused - left here as example
@@ -1046,11 +1045,9 @@ static void mqtt_incoming_publish_cb(void* arg, const char* topic, u32_t tot_len
 	g_mqtt_request.topic[0] = '\0';
 	for (i = 0; i < numCallbacks; i++)
 	{
-	    addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "mqtt_incoming_publish_cb callback %i", i);	
 		char* cbtopic = callbacks[i]->topic;
 		if (strncmp(topic, cbtopic, strlen(cbtopic)))
 		{
-			addLogAdv(LOG_INFO, LOG_FEATURE_MQTT, "mqtt_incoming_publish_cb strncmp");
 			strncpy(g_mqtt_request.topic, topic, sizeof(g_mqtt_request.topic) - 1);
 			g_mqtt_request.topic[sizeof(g_mqtt_request.topic) - 1] = 0;
 			break;
