@@ -1354,12 +1354,32 @@ commandResult_t LED_SetBaseColor(const void *context, const char *cmd, const cha
 				}
 			}
 			else if (strchr(c, ',')) {
-				// parse format like: 255,50,0
-				int r, g, b;
-				sscanf(c, "%d,%d,%d", &r, &g, &b);
-				led_baseColors[0] = r;
-				led_baseColors[1] = g;
-				led_baseColors[2] = b;
+int r = 0, g = 0, b = 0;
+char *p = c;
+
+// Parse red
+while (*p >= '0' && *p <= '9') {
+    r = r * 10 + (*p - '0');
+    p++;
+}
+if (*p == ',') p++;
+
+// Parse green
+while (*p >= '0' && *p <= '9') {
+    g = g * 10 + (*p - '0');
+    p++;
+}
+if (*p == ',') p++;
+
+// Parse blue
+while (*p >= '0' && *p <= '9') {
+    b = b * 10 + (*p - '0');
+    p++;
+}
+
+led_baseColors[0] = r;
+led_baseColors[1] = g;
+led_baseColors[2] = b;
 			} else {
 while (*c && g_numBaseColors < 5) {
     if (!*(c + 1))
